@@ -267,7 +267,7 @@
         playerGang.textContent = typeof info.gang === 'string' ? info.gang : 'No Gang';
         playerCash.textContent = formatMoney(info.cash, symbol);
         weaponName.textContent = typeof info.weaponName === 'string' ? info.weaponName : 'Weapon';
-        weaponAmmo.textContent = typeof info.ammo === 'string' ? info.ammo : '0 / 0';
+        weaponAmmo.textContent = typeof info.ammo === 'string' ? info.ammo : '0';
         weaponRow.classList.toggle('is-visible', armed);
 
         if (armed) {

@@ -233,8 +233,9 @@ body {
 }
 
 .weapon-display {
-    min-height: clamp(30px, 3.6vh, 42px);
+    min-height: clamp(24px, 2.9vh, 34px);
     margin-top: clamp(-5px, -0.4vh, -2px);
+    padding-right: clamp(12px, 0.9vw, 18px);
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -290,8 +291,8 @@ body {
 }
 
 .weapon-image {
-    width: clamp(56px, 4.8vw, 84px);
-    height: clamp(28px, 3.4vh, 42px);
+    width: clamp(42px, 3.5vw, 64px);
+    height: clamp(22px, 2.6vh, 32px);
     flex: 0 0 auto;
     object-fit: contain;
     object-position: center right;

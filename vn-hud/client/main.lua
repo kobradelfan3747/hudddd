@@ -610,16 +610,12 @@ local function getCurrentWeaponInfo()
         imageName = string.upper(imageName)
     end
 
-    local totalAmmo = math.max(0, toWholeNumber(GetAmmoInPedWeapon(ped, weaponHash)))
     local hasClip, clipAmmo = GetAmmoInClip(ped, weaponHash)
-    local ammoText = '0 / 0'
+    local ammoText = '0'
 
+    -- Only show the rounds currently loaded in the equipped weapon.
     if hasClip and tonumber(clipAmmo) ~= nil then
-        clipAmmo = math.max(0, toWholeNumber(clipAmmo))
-        local reserveAmmo = math.max(0, totalAmmo - clipAmmo)
-        ammoText = ('%s / %s'):format(tostring(clipAmmo), tostring(reserveAmmo))
-    elseif totalAmmo > 0 then
-        ammoText = tostring(totalAmmo)
+        ammoText = tostring(math.max(0, toWholeNumber(clipAmmo)))
     end
 
     return label, ammoText, true, imageName
