@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VN HUD</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="compass" class="compass" aria-hidden="true">
+        <div id="compass-track" class="compass-track"></div>
+        <div class="compass-center-line"></div>
+        <div id="compass-heading" class="compass-heading">000°</div>
+    </div>
+
+    <section id="player-panel" class="player-panel" aria-hidden="true">
+        <div class="identity-line identity-line--name">
+            <span id="player-name" class="player-primary">ID 0</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.05 0-8 2.55-8 5.15V22h16v-2.85C20 16.55 17.05 14 12 14Z"></path></svg>
+        </div>
+
+        <div class="identity-line identity-line--job">
+            <span id="player-job" class="player-secondary">Unemployed</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4V2h6v2h5a2 2 0 0 1 2 2v5.2c-2.86 1.2-6.25 1.8-10 1.8s-7.14-.6-10-1.8V6a2 2 0 0 1 2-2h5Zm2 0h2V3h-2v1ZM2 13.35V20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6.65A27.4 27.4 0 0 1 12 15a27.4 27.4 0 0 1-10-1.65Z"></path></svg>
+        </div>
+
+        <div class="identity-line identity-line--gang">
+            <span id="player-gang" class="player-secondary player-gang">No Gang</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5.5V11c0 5.05 3.42 9.76 8 11 4.58-1.24 8-5.95 8-11V5.5L12 2Zm0 3.05 5 2.18V11c0 3.52-2.16 6.94-5 8.02C9.16 17.94 7 14.52 7 11V7.23l5-2.18Zm-1.1 3.1v2.05H8.85v1.8h2.05v2.05h2.2V12h2.05v-1.8H13.1V8.15h-2.2Z"></path></svg>
+        </div>
+
+        <div class="money-line">
+            <div class="money-item money-item--cash">
+                <span class="money-label">CASH</span>
+                <span id="player-cash" class="money-value">$0</span>
+            </div>
+        </div>
+
+        <div id="weapon-row" class="weapon-display">
+            <div class="weapon-copy">
+                <span id="weapon-name" class="weapon-name">Weapon</span>
+                <span class="weapon-ammo-line">
+                    <span id="weapon-ammo" class="weapon-ammo">0 / 0</span>
+                    <svg class="ammo-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4l1.5 4v11.8c0 2.32-1.57 4.2-3.5 4.2s-3.5-1.88-3.5-4.2V6L10 2Zm.15 5v10.8c0 1.22.75 2.2 1.85 2.2s1.85-.98 1.85-2.2V7h-3.7Z"></path></svg>
+                </span>
+            </div>
+            <img id="weapon-image" class="weapon-image" alt="" draggable="false">
+        </div>
+    </section>
+
+    <section id="vehicle-hud" class="vehicle-hud" aria-label="Vehicle status">
+        <div id="vehicle-speed-panel" class="vehicle-speed-panel">
+            <div class="vehicle-signal vehicle-signal--left" data-vehicle-indicator="left">‹</div>
+
+            <div class="vehicle-telemetry">
+                <div class="vehicle-speed-line">
+                    <span id="vehicle-speed" class="vehicle-speed-value">000</span>
+                    <div class="vehicle-speed-meta">
+                        <span id="vehicle-unit" class="vehicle-speed-unit">KM/H</span>
+                        <span id="vehicle-trip" class="vehicle-trip">0.0 KM</span>
+                    </div>
+                </div>
+
+                <div class="vehicle-bars-row">
+                    <div class="vehicle-stat vehicle-stat--fuel">
+                        <span class="vehicle-stat-label">FUEL</span>
+                        <div class="vehicle-stat-track"><div id="vehicle-fuel-fill" class="vehicle-stat-fill"></div></div>
+                        <span id="vehicle-fuel" class="vehicle-stat-value">100</span>
+                    </div>
+                    <div class="vehicle-stat vehicle-stat--engine">
+                        <span class="vehicle-stat-label">ENG</span>
+                        <div class="vehicle-stat-track"><div id="vehicle-engine-fill" class="vehicle-stat-fill"></div></div>
+                        <span id="vehicle-engine" class="vehicle-stat-value">100</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vehicle-icons">
+                <div id="vehicle-ignition" class="vehicle-icon" title="Engine">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h8v2h2.4L20 10.6V14h2v5h-3v2h-2v-2H7v2H5v-2H2v-5h2v-3.4L5.6 8H8V6Zm2 2v2h4V8h-4Zm-4 5.2V17h12v-3.8L16.6 11H7.4L6 13.2Zm3.2 1.3h2.1v2.1H9.2v-2.1Zm5.5 0h2.1v2.1h-2.1v-2.1Z"></path></svg>
+                </div>
+                <div id="vehicle-seatbelt" class="vehicle-icon" title="Seatbelt">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 3.2a2.2 2.2 0 1 1 0 4.4 2.2 2.2 0 0 1 0-4.4ZM5 9h3.3l2.4 3.1-1.5 1.2L8 11.8V21H5V9Zm7.25-4.8 1.7-.85L21 17.7l-1.7.85-7.05-14.35ZM12 14l2.55 5.05H11.2L9.5 15.7 12 14Z"></path></svg>
+                </div>
+                <div id="vehicle-lights" class="vehicle-icon" title="Headlights">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5.2c-4.5.25-7 2.68-7 6.8s2.5 6.55 7 6.8V5.2Zm2 1.1h2.2L19 3.7l1 1.45-3.2 2.2H13V6.3Zm0 4.75h8v1.9h-8v-1.9Zm0 5.6h3.8l3.2 2.2-1 1.45-3.8-2.6H13v-1.05Z"></path></svg>
+                </div>
+                <div id="vehicle-lock" class="vehicle-icon" title="Door lock">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9h-1V6.7a4 4 0 0 0-8 0V9H7a2 2 0 0 0-2 2v9h14v-9a2 2 0 0 0-2-2Zm-7-2.3a2 2 0 0 1 4 0V9h-4V6.7Zm2 9.8a1.8 1.8 0 1 1 0-3.6 1.8 1.8 0 0 1 0 3.6Z"></path></svg>
+                </div>
+            </div>
+
+            <div class="vehicle-signal vehicle-signal--right" data-vehicle-indicator="right">›</div>
+        </div>
+
+        <div id="vehicle-rpm-rail" class="vehicle-rpm-rail">
+            <span class="vehicle-rpm-label">RPM</span>
+            <div class="vehicle-rpm-track">
+                <div id="vehicle-rpm-fill" class="vehicle-rpm-fill"></div>
+                <div class="vehicle-rpm-ticks"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="vehicle-gear-box">
+                <span class="vehicle-gear-label">GEAR</span>
+                <span id="vehicle-gear" class="vehicle-gear">N</span>
+            </div>
+        </div>
+    </section>
+
+    <div id="voice-widget" class="voice-widget" aria-label="Voice status">
+        <div class="voice-pulse voice-pulse--one"></div>
+        <div class="voice-pulse voice-pulse--two"></div>
+        <div id="voice-bars" class="voice-bars"></div>
+        <div class="voice-core" aria-hidden="true"></div>
+    </div>
+
+    <section id="chat-shell" class="chat-shell" aria-label="Server chat">
+        <header class="chat-header">
+            <div class="chat-title"><span class="chat-live-dot"></span> CITY CHAT</div>
+            <div class="chat-shortcuts"><kbd>ENTER</kbd> send <kbd>ESC</kbd> close</div>
+        </header>
+
+        <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+        <div id="chat-suggestions" class="chat-suggestions"></div>
+
+        <div class="chat-input-row">
+            <span class="chat-prompt">›</span>
+            <input id="chat-input" class="chat-input" type="text" autocomplete="off" spellcheck="false" placeholder="Type a message or /command...">
+            <button id="emoji-button" class="emoji-button" type="button" aria-label="Open emoji picker">☺</button>
+            <span id="chat-counter" class="chat-counter">0/300</span>
+            <div id="emoji-picker" class="emoji-picker" aria-hidden="true"></div>
+        </div>
+    </section>
+
+    <section id="radio-panel" class="radio-panel" aria-hidden="true">
+        <div class="radio-head">
+            <div class="radio-brand">
+                <span class="radio-live-dot" aria-hidden="true"></span>
+                <div>
+                    <div class="radio-kicker">VEHICLE RADIO</div>
+                    <div id="radio-now" class="radio-now">Standby</div>
+                    <div id="radio-sub" class="radio-sub">Choose a station</div>
+                </div>
+            </div>
+            <button id="radio-close" class="radio-close" type="button" aria-label="Close radio">✕</button>
+        </div>
+        <div class="radio-wave" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div id="radio-list" class="radio-list"></div>
+        <div class="radio-foot">
+            <span class="radio-vol-label">VOL</span>
+            <input id="radio-volume" class="radio-volume" type="range" min="0" max="100" value="55">
+            <span id="radio-vol-num">55</span>
+        </div>
+        <div class="radio-hint">Q open / close</div>
+        <audio id="radio-audio" preload="none"></audio>
+    </section>
+
+    <audio id="seatbelt-audio" src="m.mp3" preload="auto" loop></audio>
+
+    <div id="status-hud" class="status-hud" aria-hidden="true">
+        <div class="status-item status-item--health" data-status="health">
+            <div class="status-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.15 10.55 19.83C5.4 15.16 2 12.08 2 8.3 2 5.22 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.22 22 8.3c0 3.78-3.4 6.86-8.55 11.54L12 21.15Z"></path></svg>
+            </div>
+            <div class="status-track" role="progressbar" aria-label="Health" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="status-fill"></div></div>
+        </div>
+
+        <div class="status-item status-item--water" data-status="water">
+            <div class="status-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4S5.4 9.75 5.4 14.45A6.6 6.6 0 0 0 12 21.05a6.6 6.6 0 0 0 6.6-6.6C18.6 9.75 12 2.4 12 2.4Zm0 15.9a3.8 3.8 0 0 1-3.8-3.8c0-.55.18-1.27.52-2.08.45 2.17 2.14 3.85 4.31 4.28A3.76 3.76 0 0 1 12 18.3Z"></path></svg>
+            </div>
+            <div class="status-track" role="progressbar" aria-label="Water" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="status-fill"></div></div>
+        </div>
+
+        <div class="status-item status-item--food" data-status="food">
+            <div class="status-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 2v7.05c0 .82-.45 1.55-1.12 1.94V22H3.92V10.99A2.25 2.25 0 0 1 2.8 9.05V2h1.4v5.3h.82V2h1.36v5.3h.82V2h1.4Zm9.25 0c2.02 0 3.65 2.58 3.65 5.75 0 2.2-.78 4.1-1.94 5.07V22H16V12.82c-1.16-.97-1.94-2.87-1.94-5.07C14.06 4.58 14.43 2 16.45 2Z"></path></svg>
+            </div>
+            <div class="status-track" role="progressbar" aria-label="Food" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="status-fill"></div></div>
+        </div>
+
+        <div class="status-item status-item--stamina" data-status="stamina">
+            <div class="status-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.45 5.2a2.1 2.1 0 1 0 0-4.2 2.1 2.1 0 0 0 0 4.2ZM10.2 22l1.1-5.25 2.2 2.05V22h2.25v-4.15l-2.35-2.3.65-3.2a8.25 8.25 0 0 0 4.95 1.7V11.8a5.55 5.55 0 0 1-4.1-1.72l-1.1-1.22a2.2 2.2 0 0 0-1.67-.76c-.34 0-.65.08-.94.22L5.4 11.7v5.1h2.2v-3.82l1.95-1.08-1.7 8.98L10.2 22Z"></path></svg>
+            </div>
+            <div class="status-track" role="progressbar" aria-label="Stamina" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="status-fill"></div></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
