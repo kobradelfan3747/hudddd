@@ -233,12 +233,12 @@ body {
 }
 
 .weapon-display {
-    min-height: clamp(24px, 2.9vh, 34px);
-    margin-top: clamp(-5px, -0.4vh, -2px);
+    min-height: clamp(28px, 3.2vh, 38px);
+    margin-top: clamp(7px, 0.7vh, 11px);
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: clamp(5px, 0.45vh, 8px);
+    gap: clamp(6px, 0.55vh, 9px);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-3px);
@@ -252,14 +252,18 @@ body {
 }
 
 .weapon-copy {
-    min-width: 0;
+    min-width: clamp(28px, 2.2vw, 38px);
     max-width: clamp(76px, 7vw, 120px);
+    padding: clamp(3px, 0.3vh, 5px) clamp(6px, 0.55vw, 9px);
     display: flex;
     flex: 0 1 auto;
     flex-direction: column;
-    align-items: flex-end;
-    gap: 1px;
-    text-align: right;
+    align-items: center;
+    border: 1px solid rgba(53, 223, 196, 0.22);
+    border-radius: 999px;
+    background: linear-gradient(145deg, rgba(7, 27, 24, 0.78), rgba(2, 12, 11, 0.58));
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.38), inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+    text-align: center;
 }
 
 .weapon-name {
@@ -277,8 +281,9 @@ body {
     font-size: clamp(10px, 0.92vh, 15px);
     font-weight: 850;
     line-height: 1;
+    letter-spacing: 0.035em;
     font-variant-numeric: tabular-nums;
-    text-shadow: 0 1px 4px #000;
+    text-shadow: 0 1px 4px #000, 0 0 6px rgba(53, 223, 196, 0.16);
 }
 
 .weapon-image {
