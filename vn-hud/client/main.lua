@@ -590,7 +590,13 @@ end
 local function getCurrentWeaponInfo()
     local ped = PlayerPedId()
     local weaponHash = GetSelectedPedWeapon(ped)
-    local armed = weaponHash ~= UNARMED_HASH and IsPedArmed(ped, 4)
+
+    -- IsPedArmed can briefly return false while drawing/switching a weapon.
+    -- The selected hash is the reliable source for whether a weapon is equipped.
+    local armed = weaponHash ~= nil
+        and weaponHash ~= 0
+        and weaponHash ~= UNARMED_HASH
+        and not IsEntityDead(ped)
 
     if not armed then
         return Config.PlayerInfo.UnarmedLabel, '--', false, nil
@@ -598,19 +604,22 @@ local function getCurrentWeaponInfo()
 
     local esxLabel, esxWeaponName = getWeaponDataFromESX(weaponHash)
     local label = esxLabel or WEAPON_LABELS[weaponHash] or Config.PlayerInfo.UnknownWeaponLabel
-    local imageName = esxWeaponName or (VN_WEAPON_IMAGES and VN_WEAPON_IMAGES[weaponHash])
-    local totalAmmo = math.max(0, GetAmmoInPedWeapon(ped, weaponHash))
-    local hasClip, clipAmmo = GetAmmoInClip(ped, weaponHash)
-    local ammoText = '--'
+    local imageName = (VN_WEAPON_IMAGES and VN_WEAPON_IMAGES[weaponHash]) or esxWeaponName
 
-    if hasClip and tonumber(clipAmmo) then
-        clipAmmo = math.max(0, tonumber(clipAmmo))
+    if type(imageName) == 'string' then
+        imageName = string.upper(imageName)
+    end
+
+    local totalAmmo = math.max(0, toWholeNumber(GetAmmoInPedWeapon(ped, weaponHash)))
+    local hasClip, clipAmmo = GetAmmoInClip(ped, weaponHash)
+    local ammoText = '0 / 0'
+
+    if hasClip and tonumber(clipAmmo) ~= nil then
+        clipAmmo = math.max(0, toWholeNumber(clipAmmo))
         local reserveAmmo = math.max(0, totalAmmo - clipAmmo)
-        ammoText = ('%d / %d'):format(clipAmmo, reserveAmmo)
+        ammoText = ('%s / %s'):format(tostring(clipAmmo), tostring(reserveAmmo))
     elseif totalAmmo > 0 then
         ammoText = tostring(totalAmmo)
-    elseif IsPedArmed(ped, 4) then
-        ammoText = '0 / 0'
     end
 
     return label, ammoText, true, imageName
@@ -802,14 +811,28 @@ end)
 
 
 CreateThread(function()
-    if not Config.PlayerInfo.HideDefaultCashHud then
+    local hideCashHud = Config.PlayerInfo.HideDefaultCashHud == true
+    local hideWeaponHud = Config.PlayerInfo.HideDefaultWeaponHud == true
+
+    if not hideCashHud and not hideWeaponHud then
         return
     end
 
-    while Config.PlayerInfo.HideDefaultCashHud do
-        HideHudComponentThisFrame(3)
-        HideHudComponentThisFrame(4)
-        HideHudComponentThisFrame(13)
+    while true do
+        if hideCashHud then
+            HideHudComponentThisFrame(3)  -- cash changes
+            HideHudComponentThisFrame(4)  -- multiplayer cash
+            HideHudComponentThisFrame(13) -- cash balance
+        end
+
+        if hideWeaponHud then
+            HideHudComponentThisFrame(2) -- vanilla weapon icon/ammunition
+
+            if type(DisplayAmmoThisFrame) == 'function' then
+                DisplayAmmoThisFrame(false)
+            end
+        end
+
         Wait(0)
     end
 end)

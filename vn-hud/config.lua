@@ -221,6 +221,7 @@ Config.PlayerInfo = {
     UnknownWeaponLabel = 'Weapon',
     CurrencySymbol = '$',
     HideDefaultCashHud = true,
+    HideDefaultWeaponHud = true,
     AccentColor = '#35DFC4'
 }
 
