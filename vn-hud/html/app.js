@@ -96,28 +96,50 @@
     };
 
     let seatbeltWarnOn = false;
+    let seatbeltPlayRequest = 0;
+
+    const stopSeatbeltAudio = () => {
+        seatbeltAudio.pause();
+        try { seatbeltAudio.currentTime = 0; } catch (_) {}
+    };
+
     const setSeatbeltWarn = (playing, fileName) => {
         if (!seatbeltAudio) return;
         const file = (typeof fileName === 'string' && fileName) || 'm.mp3';
+
         if (playing) {
-            const nextSrc = seatbeltAudio.getAttribute('src') || '';
-            if (!nextSrc.endsWith(file)) {
+            seatbeltWarnOn = true;
+            const currentSrc = seatbeltAudio.getAttribute('src') || '';
+
+            if (!currentSrc.endsWith(file)) {
+                seatbeltPlayRequest += 1;
+                stopSeatbeltAudio();
                 seatbeltAudio.src = file;
+                if (typeof seatbeltAudio.load === 'function') seatbeltAudio.load();
             }
+
             seatbeltAudio.loop = true;
             seatbeltAudio.volume = 1;
-            if (!seatbeltWarnOn || seatbeltAudio.paused) {
+
+            // A heartbeat from Lua retries playback only when it never started.
+            // It never restarts m.mp3 while the warning is already audible.
+            if (seatbeltAudio.paused) {
+                const request = ++seatbeltPlayRequest;
                 const start = seatbeltAudio.play();
-                if (start && typeof start.catch === 'function') {
-                    start.catch(() => {});
+                if (start && typeof start.then === 'function') {
+                    start.then(() => {
+                        if (!seatbeltWarnOn || request !== seatbeltPlayRequest) {
+                            stopSeatbeltAudio();
+                        }
+                    }).catch(() => {});
                 }
             }
-            seatbeltWarnOn = true;
-        } else {
-            seatbeltWarnOn = false;
-            seatbeltAudio.pause();
-            try { seatbeltAudio.currentTime = 0; } catch (_) {}
+            return;
         }
+
+        seatbeltWarnOn = false;
+        seatbeltPlayRequest += 1;
+        stopSeatbeltAudio();
     };
 
     const playNeedsSound = (kind) => {

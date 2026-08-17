@@ -17,7 +17,8 @@ local vehicleState = {
     lastPayloadKey = nil,
     lastBeltNotify = 0,
     lastEngineNotify = 0,
-    chimeOn = false
+    chimeOn = false,
+    lastChimeRequest = 0
 }
 
 local esxObject = nil
@@ -80,15 +81,20 @@ local function engineIsRunning(vehicle)
     return running == true or running == 1
 end
 
-local function setSeatbeltChime(on)
+local function setSeatbeltChime(on, force)
     on = on == true
-    if vehicleState.chimeOn == on then
+    if not force and vehicleState.chimeOn == on then
         return
     end
+
     vehicleState.chimeOn = on
+    vehicleState.lastChimeRequest = on and GetGameTimer() or 0
+
+    local seatbelt = Config.Vehicle.Seatbelt or {}
     SendNUIMessage({
         action = 'seatbelt:warn',
-        playing = on
+        playing = on,
+        file = on and (seatbelt.WarningFile or 'm.mp3') or nil
     })
 end
 
@@ -116,6 +122,12 @@ local function isSeatbeltAvailable(vehicle)
         and class ~= 15
         and class ~= 16
         and class ~= 21
+end
+
+local function needsSeatbeltWarning(vehicle)
+    return vehicle ~= 0
+        and isSeatbeltAvailable(vehicle)
+        and not vehicleState.seatbelt
 end
 
 local function getLightsOn(vehicle)
@@ -180,7 +192,7 @@ local function resetVehicleState(newVehicle)
     vehicleState.lastPayloadKey = nil
     vehicleState.lastBeltNotify = 0
     vehicleState.lastEngineNotify = 0
-    setSeatbeltChime(false)
+    setSeatbeltChime(false, true)
 
     if newVehicle == 0 then clearIndicators() end
 end
@@ -464,6 +476,9 @@ local function toggleSeatbelt()
         showEsxNotify(seatbelt.UnfastenMessage or 'You unfastened your seatbelt.')
     end
 
+    -- Stop immediately when fastening and restart immediately when unfastening.
+    local playWarning = seatbelt.WarningChime ~= false and needsSeatbeltWarning(vehicle)
+    setSeatbeltChime(playWarning, true)
     sendVehicleUpdate(true)
 end
 
@@ -573,6 +588,11 @@ RegisterNUICallback('vnVehicleReady', function(_, callback)
     sendVehicleConfiguration()
     sendVehicleLayout(true)
     sendVehicleUpdate(true)
+
+    local vehicle = getCurrentVehicle()
+    local playWarning = Config.Vehicle.Seatbelt.WarningChime ~= false
+        and needsSeatbeltWarning(vehicle)
+    setSeatbeltChime(playWarning, true)
     callback({ ok = true })
 end)
 
@@ -623,34 +643,28 @@ end)
 CreateThread(function()
     local seatbelt = Config.Vehicle.Seatbelt or {}
     local remindEvery = math.max(2000, tonumber(seatbelt.ReminderInterval) or 5000)
-    local warnFile = seatbelt.WarningFile or 'm.mp3'
+    local retryEvery = math.max(500, tonumber(seatbelt.WarningInterval) or 1000)
 
     while true do
         Wait(250)
         local vehicle = getCurrentVehicle()
-        local warn = vehicle ~= 0
-            and isSeatbeltAvailable(vehicle)
-            and not vehicleState.seatbelt
+        local warn = needsSeatbeltWarning(vehicle)
+        local now = GetGameTimer()
 
         if seatbelt.WarningChime ~= false and warn then
-            if not vehicleState.chimeOn then
-                vehicleState.chimeOn = true
-                SendNUIMessage({
-                    action = 'seatbelt:warn',
-                    playing = true,
-                    file = warnFile
-                })
+            -- Repeat the start request without restarting an already playing clip.
+            -- This recovers if Chromium rejected or missed the first play request.
+            if not vehicleState.chimeOn
+                or now - (vehicleState.lastChimeRequest or 0) >= retryEvery then
+                setSeatbeltChime(true, true)
             end
         else
             setSeatbeltChime(false)
         end
 
-        if warn then
-            local now = GetGameTimer()
-            if now - (vehicleState.lastBeltNotify or 0) >= remindEvery then
-                vehicleState.lastBeltNotify = now
-                showEsxNotify(seatbelt.ReminderMessage or 'Fasten your seatbelt.')
-            end
+        if warn and now - (vehicleState.lastBeltNotify or 0) >= remindEvery then
+            vehicleState.lastBeltNotify = now
+            showEsxNotify(seatbelt.ReminderMessage or 'Fasten your seatbelt.')
         end
     end
 end)
@@ -673,7 +687,7 @@ AddEventHandler('onClientResourceStop', function(resourceName)
     end
     vehicleState.seatbelt = false
     vehicleState.manualLights = nil
-    setSeatbeltChime(false)
+    setSeatbeltChime(false, true)
     SendNUIMessage({ action = 'vehicle:visibility', visible = false })
 end)
 
